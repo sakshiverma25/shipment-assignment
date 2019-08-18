@@ -17,6 +17,32 @@ class App extends Component {
 	};
   }
   
+  componentDidMount() {
+     this.getShipments()
+  }
+  
+  createObjetArray = x => {
+	  const f = [];
+		  x.map(v => (
+		   f.push({id:v.id,shipmentNumber:v.shipmentNumber,shipmentName:v.shipmentName,shipmentStatus:v.shipmentStatus},)
+		  ))
+	return f
+//return JSON.parse(shipments) 
+ }
+  
+  getShipments = () => {
+  	fetch('http://localhost:8000/shipments/') .then((response) => {
+        return response.json();
+    })
+    .then((myJson) => {
+		alert(myJson)
+         this.setState({
+		  shipmentList : this.createObjetArray(myJson)
+      }) 
+    });
+   
+  }
+  
   toggle = () => {
 	this.setState({ modal: !this.state.modal });
   };
@@ -42,6 +68,7 @@ class App extends Component {
 	.then(res => console.log(res))
  };
   createItem = () => {
+	   this.getShipments();
 	const item = {shipmentId: "", shipmentName: "",shipmentStatus: false };
 	this.setState({ activeItem: item, modal: !this.state.modal });
   };
