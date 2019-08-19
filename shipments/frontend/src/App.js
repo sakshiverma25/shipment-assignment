@@ -6,10 +6,12 @@ class App extends Component {
   constructor(props) {
 	super(props);
 	this.state = {
+	  method: 'POST',
+	  url: 'http://localhost:8000/shipments/',
 	  modal: false,
 	  viewCompleted: false,
 	  activeItem: {
-		shipmentNumber: "",
+		shipmentId: "",
 		shipmentName: "",
 		shipmentStatus: false
 	  },
@@ -24,18 +26,16 @@ class App extends Component {
   createObjetArray = x => {
 	  const f = [];
 		  x.map(v => (
-		   f.push({id:v.id,shipmentNumber:v.shipmentNumber,shipmentName:v.shipmentName,shipmentStatus:v.shipmentStatus},)
+		   f.push({id:v.id,shipmentId:v.shipmentId,shipmentName:v.shipmentName,shipmentStatus:v.shipmentStatus},)
 		  ))
 	return f
-//return JSON.parse(shipments) 
  }
   
   getShipments = () => {
-  	fetch('http://localhost:8000/shipments/') .then((response) => {
+  	fetch('http://localhost:8000/shipments/').then((response) => {
         return response.json();
     })
     .then((myJson) => {
-		alert(myJson)
          this.setState({
 		  shipmentList : this.createObjetArray(myJson)
       }) 
@@ -48,18 +48,23 @@ class App extends Component {
   };
   handleSubmit = item => {
 	this.toggle();
-	const response = fetch('http://localhost:8000/shipments/', {
-    method: 'POST',
+	var url = this.state.url;
+	var methodType = this.state.method;
+	if(methodType==='PUT')
+		url = url+item.id
+		
+	fetch(url, {
+    method: this.state.method,
     body: JSON.stringify(item),
     headers: {
       "Content-type": "application/json; charset=UTF-8"
     }
   }).then(res => res.text())
 	.then(res => console.log(res))
+	this.setState({method: 'POST'});
   };
   
   handleDelete = item => {
-	alert("delete" + JSON.stringify(item));
 	fetch('http://localhost:8000/shipments/'+ item.id , {
     method: 'DELETE',
     headers: {'Content-Type': 'application/json'}
@@ -68,13 +73,14 @@ class App extends Component {
 	.then(res => console.log(res))
  };
   createItem = () => {
-	   this.getShipments();
+	this.getShipments();
 	const item = {shipmentId: "", shipmentName: "",shipmentStatus: false };
 	this.setState({ activeItem: item, modal: !this.state.modal });
   };
   editItem = item => {
-	this.setState({ activeItem: item, modal: !this.state.modal });
+	this.setState({ method:'PUT', activeItem: item, modal: !this.state.modal });
   };
+  
   displayCompleted = status => {
 	if (status) {
 	  return this.setState({ viewCompleted: true });
@@ -108,16 +114,25 @@ class App extends Component {
 	);
 	return newItems.map(item => (
 	  <li
-		key={item.shipmentName}
+		key={item.shipmentId}
 		className="list-group-item d-flex justify-content-between align-items-center"
 	  >
 		<span
 		  className={`todo-title mr-2 ${
 			this.state.viewCompleted ? "completed-todo" : ""
 		  }`}
-		  shipmentNumber={item.shipmentName}
+		  shipmentId={item.shipmentId}
 		>
-		  {item.shipmentNumber}
+		  {item.shipmentId}
+		</span>
+		
+		<span
+		  className={`todo-title mr-2 ${
+			this.state.viewCompleted ? "completed-todo" : ""
+		  }`}
+		  shipmentName={item.shipmentName}
+		>
+		  {item.shipmentName}
 		</span>
 		
 		
