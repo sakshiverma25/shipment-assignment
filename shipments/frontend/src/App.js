@@ -62,6 +62,7 @@ class App extends Component {
   }).then(res => res.text())
 	.then(res => console.log(res))
 	this.setState({method: 'POST'});
+	window.location.reload();
   };
   
   handleDelete = item => {
